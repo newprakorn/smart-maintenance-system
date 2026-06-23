@@ -450,3 +450,138 @@ is_active = false
 Machine จะอ้างอิง Manufacturer ผ่าน
 
 manufacturer_id
+
+# Master Table 4 : Machine Models
+
+## Purpose
+
+Machine Models ใช้เก็บรุ่นของเครื่องจักร
+
+Machine Model จะอ้างอิงผู้ผลิต (Manufacturer)
+
+ทำให้สามารถวิเคราะห์ข้อมูลตาม
+
+- ผู้ผลิต
+- รุ่น
+- ประสิทธิภาพ
+- ความถี่การเสีย
+- MTBF
+- MTTR
+
+ได้ในอนาคต
+
+---
+
+## Table
+
+machine_models
+
+---
+
+## Example Data
+
+| Manufacturer | Model    |
+| ------------ | -------- |
+| JUKI         | DDL-8700 |
+| JUKI         | DDL-9000 |
+| Brother      | S-7300A  |
+| Pegasus      | M700     |
+| Siruba       | 747K     |
+| Yamato       | AZ8000   |
+
+---
+
+## Fields
+
+| Field           | Type         | Description                 |
+| --------------- | ------------ | --------------------------- |
+| id              | UUID         | Primary Key                 |
+| manufacturer_id | UUID         | FK -> Machine Manufacturers |
+| code            | VARCHAR(50)  | รหัสรุ่น                    |
+| name            | VARCHAR(100) | ชื่อรุ่น                    |
+| description     | TEXT         | รายละเอียด                  |
+| is_active       | BOOLEAN      | เปิดใช้งาน                  |
+| created_at      | TIMESTAMP    | วันที่สร้าง                 |
+| updated_at      | TIMESTAMP    | วันที่แก้ไขล่าสุด           |
+
+---
+
+## Primary Key
+
+id
+
+---
+
+## Business Rules
+
+### BR-MMO-001
+
+Machine Model ต้องอ้างอิง Manufacturer
+
+---
+
+### BR-MMO-002
+
+Machine สามารถอ้างอิง Machine Model ได้เพียงหนึ่งรุ่น
+
+---
+
+### BR-MMO-003
+
+ห้ามลบ Model หากมี Machine ใช้งานอยู่
+
+ให้เปลี่ยน
+
+is_active = false
+
+---
+
+### BR-MMO-004
+
+Model เดียวกันสามารถมีหลายเครื่องจักรได้
+
+ตัวอย่าง
+
+JUKI DDL-8700
+
+Machine #001
+
+Machine #002
+
+Machine #003
+
+...
+
+---
+
+## Relationships
+
+Machine Manufacturers
+
+1
+
+↓
+
+Many
+
+Machine Models
+
+Machine Models
+
+1
+
+↓
+
+Many
+
+Machines
+
+---
+
+## Notes
+
+Machine จะอ้างอิงรุ่นผ่าน
+
+model_id
+
+เพื่อป้องกันข้อมูลซ้ำ และรองรับการวิเคราะห์เชิงสถิติในอนาคต
