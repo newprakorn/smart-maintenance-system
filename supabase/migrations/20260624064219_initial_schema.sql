@@ -519,3 +519,82 @@ EXECUTE FUNCTION update_updated_at_column();
 -- ============================================================================
 -- END PART 5.6
 -- ============================================================================
+-- ============================================================================
+-- PART 5.7 : MACHINE COMPONENT
+-- ============================================================================
+
+CREATE TABLE machine_component (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    machine_id UUID NOT NULL,
+
+    component_code VARCHAR(50) NOT NULL,
+    component_name VARCHAR(255) NOT NULL,
+
+    description TEXT,
+
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+
+    created_by UUID,
+    updated_by UUID,
+
+    CONSTRAINT fk_machine_component_machine
+        FOREIGN KEY (machine_id)
+        REFERENCES machine(id),
+
+    CONSTRAINT uq_machine_component_code
+        UNIQUE(machine_id, component_code)
+);
+
+CREATE TRIGGER trg_machine_component_updated_at
+BEFORE UPDATE ON machine_component
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
+-- PART 5.8 : MACHINE METER
+-- ============================================================================
+
+CREATE TABLE machine_meter (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    machine_id UUID NOT NULL,
+
+    meter_code VARCHAR(50) NOT NULL,
+    meter_name VARCHAR(255) NOT NULL,
+
+    meter_unit VARCHAR(50) NOT NULL,
+
+    current_value NUMERIC(18,2) DEFAULT 0,
+
+    description TEXT,
+
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+
+    created_by UUID,
+    updated_by UUID,
+
+    CONSTRAINT fk_machine_meter_machine
+        FOREIGN KEY (machine_id)
+        REFERENCES machine(id),
+
+    CONSTRAINT uq_machine_meter_code
+        UNIQUE(machine_id, meter_code)
+);
+
+CREATE TRIGGER trg_machine_meter_updated_at
+BEFORE UPDATE ON machine_meter
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
+-- END PART 5.7 - 5.8
+-- ============================================================================
