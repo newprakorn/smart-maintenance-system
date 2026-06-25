@@ -598,5 +598,66 @@ EXECUTE FUNCTION update_updated_at_column();
 -- ============================================================================
 -- END PART 5.7 - 5.8
 -- ============================================================================
+-- ============================================================================
+-- PART 7.1 : WORK REQUEST
+-- ============================================================================
 
+CREATE TABLE work_request (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    request_no VARCHAR(50) NOT NULL UNIQUE,
+
+    machine_id UUID NOT NULL,
+
+    requested_by UUID NOT NULL,
+
+    title VARCHAR(255) NOT NULL,
+
+    description TEXT,
+
+    priority priority_level_enum
+        NOT NULL DEFAULT 'MEDIUM',
+
+    status work_request_status_enum
+        NOT NULL DEFAULT 'OPEN',
+
+    requested_at TIMESTAMPTZ
+        NOT NULL DEFAULT NOW(),
+
+    approved_at TIMESTAMPTZ,
+
+    approved_by UUID,
+
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+
+    created_by UUID,
+    updated_by UUID,
+
+    CONSTRAINT fk_work_request_machine
+        FOREIGN KEY (machine_id)
+        REFERENCES machine(id),
+
+    CONSTRAINT fk_work_request_requested_by
+        FOREIGN KEY (requested_by)
+        REFERENCES user_profile(id),
+
+    CONSTRAINT fk_work_request_approved_by
+        FOREIGN KEY (approved_by)
+        REFERENCES user_profile(id)
+);
+
+COMMENT ON TABLE work_request IS 'Maintenance work request';
+
+CREATE TRIGGER trg_work_request_updated_at
+BEFORE UPDATE ON work_request
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
+-- END PART 7.1
+-- ============================================================================
 COMMIT;
