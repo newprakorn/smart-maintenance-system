@@ -726,5 +726,66 @@ EXECUTE FUNCTION update_updated_at_column();
 -- ============================================================================
 -- END PART 7.2
 -- ============================================================================
+-- ============================================================================
+-- PART 7.3 : WORK ORDER TASK
+-- ============================================================================
+
+CREATE TABLE work_order_task (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    work_order_id UUID NOT NULL,
+
+    task_no INTEGER NOT NULL,
+
+    task_name VARCHAR(255) NOT NULL,
+
+    description TEXT,
+
+    assigned_to UUID,
+
+    status work_order_status_enum
+        NOT NULL DEFAULT 'OPEN',
+
+    planned_start TIMESTAMPTZ,
+    planned_finish TIMESTAMPTZ,
+
+    actual_start TIMESTAMPTZ,
+    actual_finish TIMESTAMPTZ,
+
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+
+    created_by UUID,
+    updated_by UUID,
+
+    CONSTRAINT fk_work_order_task_work_order
+        FOREIGN KEY (work_order_id)
+        REFERENCES work_order(id),
+
+    CONSTRAINT fk_work_order_task_assigned_to
+        FOREIGN KEY (assigned_to)
+        REFERENCES user_profile(id),
+
+    CONSTRAINT uq_work_order_task_no
+        UNIQUE(work_order_id, task_no)
+);
+
+COMMENT ON TABLE work_order_task IS 'Individual task within a work order';
+
+CREATE TRIGGER trg_work_order_task_updated_at
+BEFORE UPDATE ON work_order_task
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
+-- END PART 7.3
+-- ============================================================================
+
+
+
+
 
 COMMIT;
