@@ -933,7 +933,56 @@ EXECUTE FUNCTION update_updated_at_column();
 -- ============================================================================
 -- END PART 7.6
 -- ============================================================================
+-- ============================================================================
+-- PART 7.7 : MAINTENANCE HISTORY
+-- ============================================================================
 
+CREATE TABLE maintenance_history (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    work_order_id UUID NOT NULL,
+
+    action_type VARCHAR(100) NOT NULL,
+
+    old_value TEXT,
+
+    new_value TEXT,
+
+    remarks TEXT,
+
+    action_by UUID,
+
+    action_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+
+    created_by UUID,
+    updated_by UUID,
+
+    CONSTRAINT fk_maintenance_history_work_order
+        FOREIGN KEY (work_order_id)
+        REFERENCES work_order(id),
+
+    CONSTRAINT fk_maintenance_history_action_by
+        FOREIGN KEY (action_by)
+        REFERENCES user_profile(id)
+);
+
+COMMENT ON TABLE maintenance_history IS
+'Audit trail and activity history for work orders';
+
+CREATE TRIGGER trg_maintenance_history_updated_at
+BEFORE UPDATE ON maintenance_history
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
+-- END PART 7.7
+-- ============================================================================
 
 
 
