@@ -660,4 +660,71 @@ EXECUTE FUNCTION update_updated_at_column();
 -- ============================================================================
 -- END PART 7.1
 -- ============================================================================
+-- ============================================================================
+-- PART 7.2 : WORK ORDER
+-- ============================================================================
+
+CREATE TABLE work_order (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    work_order_no VARCHAR(50) NOT NULL UNIQUE,
+
+    work_request_id UUID,
+
+    machine_id UUID NOT NULL,
+
+    assigned_to UUID,
+
+    maintenance_type maintenance_type_enum
+        NOT NULL DEFAULT 'CORRECTIVE',
+
+    priority priority_level_enum
+        NOT NULL DEFAULT 'MEDIUM',
+
+    status work_order_status_enum
+        NOT NULL DEFAULT 'OPEN',
+
+    title VARCHAR(255) NOT NULL,
+
+    description TEXT,
+
+    planned_start TIMESTAMPTZ,
+    planned_finish TIMESTAMPTZ,
+
+    actual_start TIMESTAMPTZ,
+    actual_finish TIMESTAMPTZ,
+
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+
+    created_by UUID,
+    updated_by UUID,
+
+    CONSTRAINT fk_work_order_request
+        FOREIGN KEY (work_request_id)
+        REFERENCES work_request(id),
+
+    CONSTRAINT fk_work_order_machine
+        FOREIGN KEY (machine_id)
+        REFERENCES machine(id),
+
+    CONSTRAINT fk_work_order_assigned_to
+        FOREIGN KEY (assigned_to)
+        REFERENCES user_profile(id)
+);
+
+COMMENT ON TABLE work_order IS 'Maintenance work order';
+
+CREATE TRIGGER trg_work_order_updated_at
+BEFORE UPDATE ON work_order
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
+-- END PART 7.2
+-- ============================================================================
+
 COMMIT;
