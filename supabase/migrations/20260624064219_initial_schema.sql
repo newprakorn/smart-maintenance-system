@@ -881,6 +881,62 @@ EXECUTE FUNCTION update_updated_at_column();
 -- ============================================================================
 -- END PART 7.5
 -- ============================================================================
+-- ============================================================================
+-- PART 7.6 : WORK ORDER ATTACHMENT
+-- ============================================================================
+
+CREATE TABLE work_order_attachment (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    work_order_id UUID NOT NULL,
+
+    file_name VARCHAR(255) NOT NULL,
+
+    original_file_name VARCHAR(255) NOT NULL,
+
+    file_type VARCHAR(100),
+
+    file_size BIGINT,
+
+    storage_path TEXT NOT NULL,
+
+    description TEXT,
+
+    uploaded_by UUID,
+
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+
+    created_by UUID,
+    updated_by UUID,
+
+    CONSTRAINT fk_work_order_attachment_work_order
+        FOREIGN KEY (work_order_id)
+        REFERENCES work_order(id),
+
+    CONSTRAINT fk_work_order_attachment_uploaded_by
+        FOREIGN KEY (uploaded_by)
+        REFERENCES user_profile(id)
+);
+
+COMMENT ON TABLE work_order_attachment IS
+'Files and documents attached to work orders';
+
+CREATE TRIGGER trg_work_order_attachment_updated_at
+BEFORE UPDATE ON work_order_attachment
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
+-- END PART 7.6
+-- ============================================================================
+
+
+
+
 
 
 
