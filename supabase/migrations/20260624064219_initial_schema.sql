@@ -783,7 +783,54 @@ EXECUTE FUNCTION update_updated_at_column();
 -- ============================================================================
 -- END PART 7.3
 -- ============================================================================
+-- ============================================================================
+-- PART 7.4 : WORK ORDER LABOR
+-- ============================================================================
 
+CREATE TABLE work_order_labor (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    work_order_task_id UUID NOT NULL,
+
+    technician_id UUID NOT NULL,
+
+    start_time TIMESTAMPTZ NOT NULL,
+
+    end_time TIMESTAMPTZ,
+
+    labor_hours NUMERIC(8,2),
+
+    remarks TEXT,
+
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+
+    created_by UUID,
+    updated_by UUID,
+
+    CONSTRAINT fk_work_order_labor_task
+        FOREIGN KEY (work_order_task_id)
+        REFERENCES work_order_task(id),
+
+    CONSTRAINT fk_work_order_labor_technician
+        FOREIGN KEY (technician_id)
+        REFERENCES user_profile(id)
+);
+
+COMMENT ON TABLE work_order_labor IS
+'Labor time records for work order tasks';
+
+CREATE TRIGGER trg_work_order_labor_updated_at
+BEFORE UPDATE ON work_order_labor
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
+-- END PART 7.4
+-- ============================================================================
 
 
 
