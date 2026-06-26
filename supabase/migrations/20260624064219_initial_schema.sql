@@ -831,7 +831,56 @@ EXECUTE FUNCTION update_updated_at_column();
 -- ============================================================================
 -- END PART 7.4
 -- ============================================================================
+-- ============================================================================
+-- PART 7.5 : WORK ORDER MATERIAL
+-- ============================================================================
 
+CREATE TABLE work_order_material (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    work_order_task_id UUID NOT NULL,
+
+    material_code VARCHAR(50) NOT NULL,
+
+    material_name VARCHAR(255) NOT NULL,
+
+    specification VARCHAR(255),
+
+    quantity NUMERIC(18,2) NOT NULL,
+
+    unit VARCHAR(50) NOT NULL,
+
+    unit_cost NUMERIC(18,2),
+
+    total_cost NUMERIC(18,2),
+
+    remarks TEXT,
+
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+
+    created_by UUID,
+    updated_by UUID,
+
+    CONSTRAINT fk_work_order_material_task
+        FOREIGN KEY (work_order_task_id)
+        REFERENCES work_order_task(id)
+);
+
+COMMENT ON TABLE work_order_material IS
+'Materials consumed for work order tasks';
+
+CREATE TRIGGER trg_work_order_material_updated_at
+BEFORE UPDATE ON work_order_material
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
+-- END PART 7.5
+-- ============================================================================
 
 
 
