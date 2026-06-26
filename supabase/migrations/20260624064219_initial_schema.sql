@@ -983,6 +983,148 @@ EXECUTE FUNCTION update_updated_at_column();
 -- ============================================================================
 -- END PART 7.7
 -- ============================================================================
+-- ============================================================================
+-- PART 8.1 : PM PLAN
+-- ============================================================================
+
+CREATE TABLE pm_plan (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    machine_id UUID NOT NULL,
+
+    plan_code VARCHAR(50) NOT NULL UNIQUE,
+
+    plan_name VARCHAR(255) NOT NULL,
+
+    maintenance_type maintenance_type_enum NOT NULL,
+
+    description TEXT,
+
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+
+    created_by UUID,
+    updated_by UUID,
+
+    CONSTRAINT fk_pm_plan_machine
+        FOREIGN KEY (machine_id)
+        REFERENCES machine(id)
+);
+
+COMMENT ON TABLE pm_plan IS
+'Preventive maintenance master plan';
+
+CREATE TRIGGER trg_pm_plan_updated_at
+BEFORE UPDATE ON pm_plan
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
+-- END PART 8.1
+-- ============================================================================
+-- ============================================================================
+-- PART 8.2 : PM SCHEDULE
+-- ============================================================================
+
+CREATE TABLE pm_schedule (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    pm_plan_id UUID NOT NULL,
+
+    schedule_type VARCHAR(20) NOT NULL,
+
+    frequency INTEGER NOT NULL,
+
+    frequency_unit VARCHAR(20) NOT NULL,
+
+    start_date DATE NOT NULL,
+
+    next_due_date DATE,
+
+    next_due_meter NUMERIC(18,2),
+
+    last_completed_date DATE,
+
+    last_completed_meter NUMERIC(18,2),
+
+    auto_generate_work_order BOOLEAN NOT NULL DEFAULT TRUE,
+
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+
+    created_by UUID,
+    updated_by UUID,
+
+    CONSTRAINT fk_pm_schedule_plan
+        FOREIGN KEY (pm_plan_id)
+        REFERENCES pm_plan(id)
+);
+
+COMMENT ON TABLE pm_schedule IS
+'Preventive maintenance schedule';
+
+CREATE TRIGGER trg_pm_schedule_updated_at
+BEFORE UPDATE ON pm_schedule
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
+-- END PART 8.2
+-- ============================================================================
+-- ============================================================================
+-- PART 8.3 : PM CHECKLIST
+-- ============================================================================
+
+CREATE TABLE pm_checklist (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    pm_plan_id UUID NOT NULL,
+
+    sequence_no INTEGER NOT NULL,
+
+    checklist_item VARCHAR(255) NOT NULL,
+
+    inspection_method TEXT,
+
+    standard_value VARCHAR(255),
+
+    is_required BOOLEAN NOT NULL DEFAULT TRUE,
+
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+
+    created_by UUID,
+    updated_by UUID,
+
+    CONSTRAINT fk_pm_checklist_plan
+        FOREIGN KEY (pm_plan_id)
+        REFERENCES pm_plan(id),
+
+    CONSTRAINT uq_pm_checklist_sequence
+        UNIQUE(pm_plan_id, sequence_no)
+);
+
+COMMENT ON TABLE pm_checklist IS
+'Checklist template for preventive maintenance plans';
+
+CREATE TRIGGER trg_pm_checklist_updated_at
+BEFORE UPDATE ON pm_checklist
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
+-- END PART 8.3
+-- ============================================================================
+
 
 
 
