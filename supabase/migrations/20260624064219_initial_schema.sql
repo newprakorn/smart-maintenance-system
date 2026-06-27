@@ -1125,6 +1125,53 @@ EXECUTE FUNCTION update_updated_at_column();
 -- END PART 8.3
 -- ============================================================================
 
+-- ============================================================================
+-- PART 8.4 : PM WORK ORDER
+-- ============================================================================
+
+CREATE TABLE pm_work_order (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    pm_schedule_id UUID NOT NULL,
+
+    work_order_id UUID NOT NULL,
+
+    generated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    is_auto_generated BOOLEAN NOT NULL DEFAULT TRUE,
+
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+
+    created_by UUID,
+    updated_by UUID,
+
+    CONSTRAINT fk_pm_work_order_schedule
+        FOREIGN KEY (pm_schedule_id)
+        REFERENCES pm_schedule(id),
+
+    CONSTRAINT fk_pm_work_order_work_order
+        FOREIGN KEY (work_order_id)
+        REFERENCES work_order(id),
+
+    CONSTRAINT uq_pm_work_order
+        UNIQUE(pm_schedule_id, work_order_id)
+);
+
+COMMENT ON TABLE pm_work_order IS
+'Link between preventive maintenance schedules and generated work orders';
+
+CREATE TRIGGER trg_pm_work_order_updated_at
+BEFORE UPDATE ON pm_work_order
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
+-- END PART 8.4
+-- ============================================================================
 
 
 
